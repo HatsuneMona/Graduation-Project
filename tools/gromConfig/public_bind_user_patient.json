@@ -1,0 +1,21 @@
+{
+    "host": "172.20.0.2",
+    "port": 3306,
+    "user": "hospital",
+    "password": "62QppvxZjCGm7c9jdUyQ",
+    "database": "hospital",
+    "table": "public_bind_user_patient",
+    "package_name": "Models",
+    "struct_name": "BindUserPatientInfo",
+    "enable_initialism": true,
+    "enable_field_comment": true,
+    "enable_sql_null": true,
+    "enable_guregu_null": false,
+    "enable_json_tag": true,
+    "enable_xml_tag": false,
+    "enable_gorm_tag": true,
+    "enable_xorm_tag": false,
+    "enable_beego_tag": false,
+    "enable_gorose_tag": false,
+    "enable_gorm_v2_tag": true
+}
