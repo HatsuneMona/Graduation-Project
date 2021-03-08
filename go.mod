@@ -6,5 +6,4 @@ require (
 	//latest
 	github.com/jinzhu/gorm latest
 	github.com/go-redis/redis/v8 latest
-
 )
