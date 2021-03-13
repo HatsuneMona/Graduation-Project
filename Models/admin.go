@@ -3,7 +3,7 @@ package Models
 import (
 	"errors"
 	"fmt"
-	"service/Databases/DBPool"
+	"service/Databases"
 )
 
 type Admin struct {
@@ -11,7 +11,7 @@ type Admin struct {
 	Username     string `json:"admin_username" gorm:"column:admin_username;type:char(20);not null;unique_index:hospital_admin_admin_username_uindex;comment:'管理员用户名'"`                        // 管理员用户名
 	Password     string `json:"admin_password" gorm:"column:admin_password;type:char(30);not null;comment:'管理员密码'"`                                                                           // 管理员密码
 	Name         string `json:"admin_name" gorm:"column:admin_name;type:varchar(10);not null;comment:'管理员名字'"`                                                                                // 管理员名字
-	Phonenum     string `json:"admin_phoneNum" gorm:"column:admin_phoneNum;type:char(15);not null;comment:'管理员电话'"`                                                                           // 管理员电话
+	Phone        string `json:"admin_phone" gorm:"column:admin_phone;type:char(15);not null;comment:'管理员电话'"`                                                                                 // 管理员电话
 	PermissionID int    `json:"admin_permission_id" gorm:"column:admin_permission_id;type:int(11);not null;index:hospital_admin_hospital_admin_permissions_permission_id_fk;comment:'管理员权限'"` // 管理员权限
 	AdminHandlers
 }
@@ -39,7 +39,7 @@ type adminReader interface {
 type adminSetter interface {
 	UpdatePassword(newPassword string) error
 	UpdateName(newName string) error
-	UpdatePhonenum(newPhoneNum string) error
+	UpdatePhone(newPhone string) error
 	UpdatePermissionID(newPermissionID int) error
 	AddNewAdmin() error
 	Delete() error
@@ -54,7 +54,7 @@ type adminSetter interface {
  */
 func (admin *Admin) GetAdminByID(id int) error {
 	admin.ID = id
-	res := DBPool.DB.Take(&admin)
+	res := Databases.DB.Take(&admin)
 	//if res.Value != 1 {
 	//	log.Logger.Info(fmt.Sprintf("查询Admin错误，查询结果数量=%v", res.Value))
 	//	return admin, errors.New(fmt.Sprintf("查询Admin错误，查询结果数量=%v", res.Value))
@@ -74,7 +74,7 @@ func (admin *Admin) GetAdminByID(id int) error {
  * @createTime    2021/3/10 17:31
  */
 func (admin *Admin) GetAdminByUsername(username string) error {
-	res := DBPool.DB.Where("admin_username = ?", username).Take(&admin)
+	res := Databases.DB.Where("admin_username = ?", username).Take(&admin)
 	// if res.Value != 1 {
 	//	log.Logger.Info(fmt.Sprintf("查询Admin错误，查询结果数量=%v", res.Value))
 	//	return admin, errors.New(fmt.Sprintf("查询Admin错误，查询结果数量=%v", res.Value))
@@ -105,7 +105,7 @@ func (admin *Admin) UpdatePassword(newPassword string) error {
 	if admin.Password == newPassword {
 		return errors.New("新密码与旧密码相同，pass")
 	}
-	result := DBPool.DB.Model(&admin).Update("admin_password", newPassword)
+	result := Databases.DB.Model(&admin).Update("admin_password", newPassword)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -116,18 +116,18 @@ func (admin *Admin) UpdateName(newName string) error {
 	if admin.Name == newName {
 		return errors.New("新名字与旧名字相同，pass")
 	}
-	result := DBPool.DB.Model(&admin).Update("admin_name", newName)
+	result := Databases.DB.Model(&admin).Update("admin_name", newName)
 	if result.Error != nil {
 		return result.Error
 	}
 	return nil
 }
 
-func (admin *Admin) UpdatePhonenum(newPhoneNum string) error {
-	if admin.Phonenum == newPhoneNum {
+func (admin *Admin) UpdatePhone(newPhoneNum string) error {
+	if admin.Phone == newPhoneNum {
 		return errors.New("新手机号与旧手机号相同，pass")
 	}
-	result := DBPool.DB.Model(&admin).Update("admin_phonenum", newPhoneNum)
+	result := Databases.DB.Model(&admin).Update("admin_phonenum", newPhoneNum)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -138,7 +138,7 @@ func (admin *Admin) UpdatePermissionID(newPermissionID int) error {
 	if admin.PermissionID == newPermissionID {
 		return errors.New("新权限与旧权限相同，pass")
 	}
-	result := DBPool.DB.Model(&admin).Update("admin_permission_id", newPermissionID)
+	result := Databases.DB.Model(&admin).Update("admin_permission_id", newPermissionID)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -149,7 +149,7 @@ func (admin *Admin) AddNewAdmin() error {
 	if admin.ID != 0 {
 		return errors.New("禁止指定AdminID")
 	}
-	result := DBPool.DB.Create(&admin)
+	result := Databases.DB.Create(&admin)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -160,7 +160,7 @@ func (admin *Admin) Delete() error {
 	if admin.ID == 0 {
 		return errors.New("请提供正确的adminID")
 	}
-	result := DBPool.DB.Delete(&admin)
+	result := Databases.DB.Delete(&admin)
 	if result.RowsAffected == 0 {
 		return errors.New(fmt.Sprintf("删除失败，查无此ID（DeleteID=%v）", admin.ID))
 	}
@@ -173,7 +173,7 @@ func (admin *Admin) Delete() error {
 		Username:      "(Deleted)",
 		Password:      "(Deleted)",
 		Name:          "(Deleted)",
-		Phonenum:      "(Deleted)",
+		Phone:         "(Deleted)",
 		PermissionID:  -1, //系统保留权限值，空权限
 		AdminHandlers: nil,
 	}
