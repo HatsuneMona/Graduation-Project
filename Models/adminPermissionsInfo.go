@@ -3,7 +3,7 @@ package Models
 import (
 	"errors"
 	"fmt"
-	"service/Databases/DBPool"
+	"service/Databases"
 )
 
 type AdminPermissionsInfo struct {
@@ -40,7 +40,7 @@ type adminPermissionsInfoSetter interface {
 
 func (info *AdminPermissionsInfo) GetAdminPermissionsInfoByID(id int) error {
 	info.ID = id
-	res := DBPool.DB.Take(&info)
+	res := Databases.DB.Take(&info)
 	if res.Error != nil {
 		//log.Logger.Info(fmt.Sprintf("查询Admin错误，查询错误=%v", res.Error))
 		return errors.New(fmt.Sprintf("查询AdminPermissionsInfo错误，查询错误=%v", res.Error))
@@ -49,7 +49,7 @@ func (info *AdminPermissionsInfo) GetAdminPermissionsInfoByID(id int) error {
 }
 
 func (info *AdminPermissionsInfo) GetAdminPermissionsInfoByShortName(ShortName string) error {
-	res := DBPool.DB.Where("permission_short_name = ?", ShortName).Take(&info)
+	res := Databases.DB.Where("permission_short_name = ?", ShortName).Take(&info)
 	if res.Error != nil {
 		//log.Logger.Info(fmt.Sprintf("查询Admin错误，查询错误=%v", res.Error))
 		return errors.New(fmt.Sprintf("查询AdminPermissionsInfo错误，查询错误=%v", res.Error))
@@ -59,7 +59,7 @@ func (info *AdminPermissionsInfo) GetAdminPermissionsInfoByShortName(ShortName s
 
 //给定权限ID，查询是否有该权限。
 func (info *AdminPermissionsInfo) haveAdminPermissionID() (bool, error) {
-	res := DBPool.DB.Select("permission_id").First(&info)
+	res := Databases.DB.Select("permission_id").First(&info)
 	if res.Error != nil {
 		return false, res.Error
 	}
@@ -74,7 +74,7 @@ func (info *AdminPermissionsInfo) UpdatePermissionShortName(newShortName string)
 	if info.ShortName == newShortName {
 		return errors.New("新旧数据相同，pass")
 	}
-	res := DBPool.DB.Model(&info).Update("permission_short_name", newShortName)
+	res := Databases.DB.Model(&info).Update("permission_short_name", newShortName)
 	if res.Error != nil {
 		return res.Error
 	}
@@ -85,7 +85,7 @@ func (info *AdminPermissionsInfo) UpdatePermissionIntroduce(newIntroduce string)
 	if info.Introduce == newIntroduce {
 		return errors.New("新旧数据相同，pass")
 	}
-	res := DBPool.DB.Model(&info).Update("permission_introduce", newIntroduce)
+	res := Databases.DB.Model(&info).Update("permission_introduce", newIntroduce)
 	if res.Error != nil {
 		return res.Error
 	}
@@ -97,7 +97,7 @@ func (info *AdminPermissionsInfo) UpdatePermissionChoose(newChooseInts ...int) e
 	if info.Choose == newChoose {
 		return errors.New("新旧数据相同，pass")
 	}
-	res := DBPool.DB.Model(&info).Update("permission_choose", newChoose)
+	res := Databases.DB.Model(&info).Update("permission_choose", newChoose)
 	if res.Error != nil {
 		return res.Error
 	}
@@ -115,7 +115,7 @@ func (info *AdminPermissionsInfo) AddNewPermission() error {
 
 	info.Choose = fmt.Sprint(info.ChooseID)
 
-	result := DBPool.DB.Create(&info)
+	result := Databases.DB.Create(&info)
 	if result.Error != nil {
 		return result.Error
 	}
