@@ -53,7 +53,7 @@ func Test_AdminSetter(t *testing.T) {
 		Username:      "TestAddAdmin",
 		Password:      "TestAddAdmin",
 		Name:          "添加测试",
-		Phonenum:      "TestAddAdmin",
+		Phone:         "TestAddAdmin",
 		PermissionID:  -2,
 		AdminHandlers: nil,
 	}
@@ -79,7 +79,7 @@ func Test_AdminSetter(t *testing.T) {
 			Username:      "nothing",
 			Password:      "nothing",
 			Name:          "nothing",
-			Phonenum:      "nothing",
+			Phone:         "nothing",
 			PermissionID:  -2,
 			AdminHandlers: nil,
 		}
