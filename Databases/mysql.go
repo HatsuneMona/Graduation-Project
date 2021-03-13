@@ -3,7 +3,7 @@
  * @Date  2021-02-05 17:05
  * @Description 初始化 MySQL database
  **/
-package DBPool
+package Databases
 
 import (
 	"fmt"
