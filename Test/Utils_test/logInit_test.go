@@ -3,7 +3,7 @@
  * @Date  2021-03-09 08:40
  * @Description 测试log模块
  **/
-package Test
+package Utils
 
 import (
 	"service/Utils/log"
