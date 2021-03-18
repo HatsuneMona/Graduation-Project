@@ -11,6 +11,7 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
+//RDB 是Redis的连接池
 var RDB *redis.Client
 
 func init() {

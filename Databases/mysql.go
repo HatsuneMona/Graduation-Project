@@ -1,8 +1,4 @@
-/**
- * @Author HatsuneMona
- * @Date  2021-02-05 17:05
- * @Description 初始化 MySQL database
- **/
+//Package Databases 用来初始化MySQL和Redis
 package Databases
 
 import (
@@ -19,6 +15,7 @@ type connInfo struct {
 	database string
 }
 
+//DB 是MySQL的连接池
 var DB *gorm.DB
 
 func init() {
