@@ -45,17 +45,17 @@ func Test_AdminReader(t *testing.T) {
 		}
 		t.Log(admin)
 	})
+
 }
 
 func Test_AdminSetter(t *testing.T) {
 	newAdmin := Models.Admin{
-		ID:            0,
-		Username:      "TestAddAdmin",
-		Password:      "TestAddAdmin",
-		Name:          "添加测试",
-		Phone:         "TestAddAdmin",
-		PermissionID:  -2,
-		AdminHandlers: nil,
+		ID:           0,
+		Username:     "TestAddAdmin",
+		Password:     "TestAddAdmin",
+		Name:         "添加测试",
+		Phone:        "TestAddAdmin",
+		PermissionID: -2,
 	}
 
 	t.Run("添加、删除用户测试（添加成功测试）", func(t *testing.T) {
@@ -75,13 +75,12 @@ func Test_AdminSetter(t *testing.T) {
 
 	t.Run("删除失败", func(t *testing.T) {
 		deleteErrAdmin := Models.Admin{
-			ID:            9000,
-			Username:      "nothing",
-			Password:      "nothing",
-			Name:          "nothing",
-			Phone:         "nothing",
-			PermissionID:  -2,
-			AdminHandlers: nil,
+			ID:           9000,
+			Username:     "nothing",
+			Password:     "nothing",
+			Name:         "nothing",
+			Phone:        "nothing",
+			PermissionID: -2,
 		}
 		err := deleteErrAdmin.Delete()
 		if err == nil {
