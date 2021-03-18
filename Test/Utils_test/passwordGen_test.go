@@ -61,4 +61,22 @@ func Test_PasswordUtil(t *testing.T) {
 		eTime := time.Now()
 		t.Logf("9次SHA验证共用时间：%v \t 平均时间：%v", eTime.Sub(sTime), eTime.Sub(sTime)/9)
 	})
+
+	zhPW := "派蒙：前面的区域，以后再来探索吧~"
+	t.Run("中文密码计算与验证", func(t *testing.T) {
+		t.Logf("明文密码：%v\n", zhPW)
+		pwSHA := make([]string, 9)
+		for i := 0; i < 9; i++ {
+			pwSHA[i] = Utils.PasswordWithSaltGenToSHA(zhPW)
+			t.Logf("第%v次  SHA加密后的密码：%v\n", i+1, pwSHA[i])
+		}
+		for i := 0; i < 9; i++ {
+			ok, err := Utils.PasswordVerify(zhPW, pwSHA[i])
+			if ok != true || err != nil {
+				t.Errorf("第%v次  密码验证错误，错误信息：%v", i+1, err)
+			} else {
+				t.Logf("第%v次  密码对验证成功！", i+1)
+			}
+		}
+	})
 }
