@@ -27,7 +27,7 @@ func Test_PasswordUtil(t *testing.T) {
 	pw := "passwordTest@1987321654KK"
 	//pwSHA := Utils.PasswordWithSaltGenToSHA(pw)
 	t.Logf("明文密码：%v\n", pw)
-	pwSHA := make([][]byte, 9)
+	pwSHA := make([]string, 9)
 	for i := 0; i < 9; i++ {
 		pwSHA[i] = Utils.PasswordWithSaltGenToSHA(pw)
 		t.Logf("第%v次  SHA加密后的密码：%v\n", i+1, string(pwSHA[i]))
