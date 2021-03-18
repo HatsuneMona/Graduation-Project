@@ -1,9 +1,11 @@
+//Package Models 定义了数据库表的实例。
 package Models
 
 import (
 	"errors"
 	"fmt"
 	"service/Databases"
+	"service/Utils"
 )
 
 type Admin struct {
@@ -23,10 +25,13 @@ func (admin *Admin) TableName() string {
 
 /*
  * @description   关于Admin操作的相关接口，其中包括读取（查询）Admin信息接口，设置（更新、添加、删除）Admin信息接口）
+
  * @auther        HatsuneMona
+
  * @createTime    2021/3/10 16:45
+
  */
-type AdminHandlers interface {
+type AdminHandlers struct {
 	adminReader
 	adminSetter
 }
@@ -67,12 +72,17 @@ func (admin *Admin) GetAdminByID(id int) error {
 }
 
 /*
- * @description   通过给定adminID，从数据库中查询admin信息
- * @param         id int 需要查询的adminID
- * @return        查询成功：error=nil，失败则返回报错信息。
- * @auther        HatsuneMona
- * @createTime    2021/3/10 17:31
- */
+ * @description		通过给定adminID，从数据库中查询admin信息
+
+ * @param
+					`id` int 需要查询的adminID
+ * @return
+					查询成功：error=nil，失败则返回报错信息。
+
+ * @auther			HatsuneMona
+
+ * @createTime		2021/3/10 17:31
+*/
 func (admin *Admin) GetAdminByUsername(username string) error {
 	res := Databases.DB.Where("admin_username = ?", username).Take(&admin)
 	// if res.Value != 1 {
@@ -90,22 +100,21 @@ func (admin *Admin) GetAdminByUsername(username string) error {
 @Description	更新Admin用户密码
 
 @Param
-
-`newPassword` string 新密码
+				`newPassword` string 新密码，输入的密码应该是明文密码，而非加密过的密码。
 
 @Return
-
-成功：error=nil，失败：返回错误信息。
+				成功：error=nil，失败：返回错误信息。
 
 @Author        HatsuneMona
 
 @CreateTime    2021/3/10 17:29
 */
 func (admin *Admin) UpdatePassword(newPassword string) error {
-	if admin.Password == newPassword {
+	if same, _ := Utils.PasswordVerify(newPassword, admin.Password); same {
 		return errors.New("新密码与旧密码相同，pass")
 	}
-	result := Databases.DB.Model(&admin).Update("admin_password", newPassword)
+	pwSHA := Utils.PasswordWithSaltGenToSHA(newPassword)
+	result := Databases.DB.Model(&admin).Update("admin_password", pwSHA)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -145,10 +154,23 @@ func (admin *Admin) UpdatePermissionID(newPermissionID int) error {
 	return nil
 }
 
+/*
+@Description	向数据库中添加一个新的Admin
+
+@Param			调用该函数的admin，应该保持admin.ID==0，密码为明文密码
+
+@Return
+成功：error=nil，失败：返回错误信息。
+
+@Author        HatsuneMona
+
+@CreateTime    2021/3/18  09:44
+*/
 func (admin *Admin) AddNewAdmin() error {
 	if admin.ID != 0 {
 		return errors.New("禁止指定AdminID")
 	}
+	admin.Password = Utils.PasswordWithSaltGenToSHA(admin.Password)
 	result := Databases.DB.Create(&admin)
 	if result.Error != nil {
 		return result.Error
@@ -169,13 +191,12 @@ func (admin *Admin) Delete() error {
 	}
 	//原有数据是否需要手动覆盖？需要。
 	*admin = Admin{
-		ID:            -admin.ID,
-		Username:      "(Deleted)",
-		Password:      "(Deleted)",
-		Name:          "(Deleted)",
-		Phone:         "(Deleted)",
-		PermissionID:  -1, //系统保留权限值，空权限
-		AdminHandlers: nil,
+		ID:           -admin.ID,
+		Username:     "(Deleted)",
+		Password:     "(Deleted)",
+		Name:         "(Deleted)",
+		Phone:        "(Deleted)",
+		PermissionID: -1, //系统保留权限值，空权限
 	}
 	return nil
 }
