@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"service/Databases"
+	"service/Utils"
 )
 
 type User struct {
@@ -24,9 +25,9 @@ type UserHandlers interface {
 }
 
 type userReader interface {
-	GetUserByID(id int) error
+	GetUserByID(id ...int) error
 	//GetUserByNickname(username string) error
-	GetUserByPhone(phone string) error
+	GetUserByPhone(phone ...string) error
 }
 
 type userSetter interface {
@@ -37,8 +38,21 @@ type userSetter interface {
 	Delete() error
 }
 
-func (u *User) GetUserByID(id int) error {
-	u.ID = id
+//GetUserByID
+//
+//@Description	通过给定用户ID，来返回用户的所有信息。
+//
+//@Param
+//				`id ...int` 需要查询的ID，可选参数。
+//				若 `id ...int` 保持为空，则从调用者的结构体中获取要查询的用户ID。
+//
+//@Return
+//				查询到的信息将写入调用者的结构体中，并返回。
+//				error 查询正确则返回nil，否则返回Error
+func (u *User) GetUserByID(id ...int) error {
+	if len(id) > 0 {
+		u.ID = id[0]
+	}
 	res := Databases.DB.Take(&u)
 	if res.Error != nil {
 		return res.Error
@@ -47,20 +61,27 @@ func (u *User) GetUserByID(id int) error {
 	}
 }
 
-//func (u *User) GetUserByNickname(username string) error {
-//	res := Databases.DB.Model(&u).Where("user_nickname = ?", username).Take(&u)
-//	if res.Error != nil {
-//		return res.Error
-//	} else {
-//		return nil
-//	}
-//}
-
-func (u *User) GetUserByPhone(phone string) error {
-	if len(phone) != 11 {
-		return errors.New(fmt.Sprintf("非法手机号：%v", phone))
+//GetUserByPhone
+//
+//@Description	通过给定用户的电话号码，来返回用户的所有信息。
+//
+//@Param
+//				`phone ...string` 需要查询的电话号码，可选参数。（优先）（若提供多个值，则仅查询第一个值）
+//				若 `phone ...string`` 保持为空，则从调用者的结构体中获取要查询的用户电话号码。
+//
+//@Return
+//				查询到的信息将写入调用者的结构体中，并返回。
+//				error 查询正确则返回nil，否则返回Error
+func (u *User) GetUserByPhone(phone ...string) error {
+	if len(phone) > 1 {
+		u.Phone = phone[0]
+	} else if u.Phone == "" {
+		return errors.New(fmt.Sprintf("非法手机号：%v", u.Phone))
 	}
-	res := Databases.DB.Model(&u).Where("user_phone = ?", phone).Take(&u)
+	if len(phone) != 11 {
+		return errors.New(fmt.Sprintf("非法手机号：%v", u.Phone))
+	}
+	res := Databases.DB.Model(&u).Where("user_phone = ?", u.Phone).Take(&u)
 	if res.Error != nil {
 		return res.Error
 	} else {
@@ -68,11 +89,23 @@ func (u *User) GetUserByPhone(phone string) error {
 	}
 }
 
+/*
+UpdatePassword
+
+@Description	更新User用户密码
+
+@Param
+				`newPassword` string 新密码，输入的密码应该是明文密码，而非加密过的密码。
+
+@Return
+				成功：error=nil，失败：返回错误信息。
+*/
 func (u *User) UpdatePassword(newPassword string) error {
-	if u.Password == newPassword {
+	if same, _ := Utils.PasswordVerify(newPassword, u.Password); same {
 		return errors.New("新旧密码相同，pass")
 	}
-	result := Databases.DB.Model(&u).Update("user_password", newPassword)
+	pwSHA := Utils.PasswordWithSaltGenToSHA(newPassword)
+	result := Databases.DB.Model(&u).Update("user_password", pwSHA)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -101,10 +134,20 @@ func (u *User) UpdatePhone(newPhoneNum string) error {
 	return nil
 }
 
+//AddNewUser
+//
+//@Description	添加新的用户
+//
+//@Param
+//				nothing
+//
+//@Return
+//				error
 func (u *User) AddNewUser() error {
 	if u.ID != 0 {
 		return errors.New("禁止指定UserID")
 	}
+	u.Password = Utils.PasswordWithSaltGenToSHA(u.Password)
 	result := Databases.DB.Create(&u)
 	if result.Error != nil {
 		return result.Error
