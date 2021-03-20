@@ -41,16 +41,7 @@ func FuncName(sth string, sth2 int) error{
 
 ---------------
 ### BUG（？）：
-1. 对于在`password`包里的函数，
-我使用了`string` 类型的变量作为参数，而不是`[]byte`
-如果给 `password` 模块中的相关函数一串中文的字符会发生什么？
-   - 自问自答：什么也不会发生，正常使用。
-     ```
-     === RUN   Test_PasswordUtil/中文密码计算与验证
-     passwordGen_test.go:67: 明文密码：派蒙：前面的区域，以后再来探索吧~
-     passwordGen_test.go:71: 第1次  SHA加密后的密码：$2a$10$Xi89U2/aqzufFtepL.AZYeRLQ8T2Si/3S6XzYtTC/Y3MUr6tFz3S6
-     passwordGen_test.go:78: 第1次  密码对验证成功！
-     ```
+1. 
 
 
 ### 心得体会：
@@ -61,6 +52,16 @@ func FuncName(sth string, sth2 int) error{
     这个短串代表了使用bcrypt加密的版本和参数，这个字符串**也需要放入数据库中**
     多或少了这串字符对黑客入侵后窃取数据没有任何影响，
     反而会影响后续程序对加密方法的升级。
+   3. 对于在`password`包里的函数，
+      我使用了`string` 类型的变量作为参数，而不是`[]byte`
+      如果给 `password` 模块中的相关函数一串中文的字符会发生什么？
+        - 自问自答：什么也不会发生，正常使用。
+      ```
+      === RUN   Test_PasswordUtil/中文密码计算与验证
+      passwordGen_test.go:67: 明文密码：派蒙：前面的区域，以后再来探索吧~
+      passwordGen_test.go:71: 第1次  SHA加密后的密码：$2a$10$Xi89U2/aqzufFtepL.AZYeRLQ8T2Si/3S6XzYtTC/Y3MUr6tFz3S6
+      passwordGen_test.go:78: 第1次  密码对验证成功！   
+      ```
 2. 良好、直观的注释，可以在后续编码中起到重要的作用，
 尤其是能让IDE识别到的、能让goDoc识别到的写法，标准。
 

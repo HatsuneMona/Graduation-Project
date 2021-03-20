@@ -1,8 +1,10 @@
 package main
 
-import "service/Utils/log"
+import (
+	"service/pkg/Utils"
+)
 
 func main() {
-	log.InitLogger()
-	defer log.Logger.Sync()
+	Utils.InitLogger()
+	defer Utils.Logger.Sync()
 }

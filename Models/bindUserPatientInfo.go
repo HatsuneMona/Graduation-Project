@@ -14,3 +14,4 @@ type BindUserPatientInfo struct {
 func (b *BindUserPatientInfo) TableName() string {
 	return "public_bind_user_patient"
 }
+

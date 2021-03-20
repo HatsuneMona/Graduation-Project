@@ -6,16 +6,16 @@
 package Utils
 
 import (
-	"service/Utils/log"
+	"service/pkg/Utils"
 	"testing"
 )
 
 func Test_LoggerInit(t *testing.T) {
 	t.Run("测试logger初始化情况", func(t *testing.T) {
-		log.InitLogger()
-		defer log.Logger.Sync()
-		log.Logger.Info("LoggerInfo")
-		log.Logger.Fatal("LoggerFatal")
-		log.Logger.Error("LoggerError")
+		Utils.InitLogger()
+		defer Utils.Logger.Sync()
+		Utils.Logger.Info("LoggerInfo")
+		Utils.Logger.Fatal("LoggerFatal")
+		Utils.Logger.Error("LoggerError")
 	})
 }

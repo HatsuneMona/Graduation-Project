@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"service/Databases"
-	"service/Utils"
+	"service/pkg/password"
 )
 
 type User struct {
@@ -101,10 +101,10 @@ UpdatePassword
 				成功：error=nil，失败：返回错误信息。
 */
 func (u *User) UpdatePassword(newPassword string) error {
-	if same, _ := Utils.PasswordVerify(newPassword, u.Password); same {
+	if same, _ := password.PasswordVerify(newPassword, u.Password); same {
 		return errors.New("新旧密码相同，pass")
 	}
-	pwSHA := Utils.PasswordWithSaltGenToSHA(newPassword)
+	pwSHA := password.PasswordWithSaltGenToSHA(newPassword)
 	result := Databases.DB.Model(&u).Update("user_password", pwSHA)
 	if result.Error != nil {
 		return result.Error
@@ -147,7 +147,7 @@ func (u *User) AddNewUser() error {
 	if u.ID != 0 {
 		return errors.New("禁止指定UserID")
 	}
-	u.Password = Utils.PasswordWithSaltGenToSHA(u.Password)
+	u.Password = password.PasswordWithSaltGenToSHA(u.Password)
 	result := Databases.DB.Create(&u)
 	if result.Error != nil {
 		return result.Error

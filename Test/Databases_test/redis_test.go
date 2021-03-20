@@ -8,14 +8,14 @@ package Databases
 import (
 	"context"
 	"fmt"
-	"service/Databases"
+	"service/pkg/cache"
 	"testing"
 )
 
 func Test_RedisConnection(t *testing.T) {
 	t.Run("Redis连接测试", func(t *testing.T) {
 		ctx := context.Background()
-		str, err := Databases.RDB.Ping(ctx).Result()
+		str, err := cache.RDB.Ping(ctx).Result()
 		if err != nil {
 			t.Fatal(fmt.Sprintf("Redis连接错误，错误信息：%v\n", err))
 		} else {

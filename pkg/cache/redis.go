@@ -3,12 +3,13 @@
  * @Date  2021-02-19 22:01
  * @Description 初始化 Redis
  **/
-package Databases
+package cache
 
 import (
 	"context"
 	"fmt"
 	"github.com/go-redis/redis/v8"
+	"service/pkg/config"
 )
 
 //RDB 是Redis的连接池
@@ -16,9 +17,9 @@ var RDB *redis.Client
 
 func init() {
 	RDB = redis.NewClient(&redis.Options{
-		Addr:     "172.20.0.2:6379",
-		Password: "AHzkfP8ViCX&5MPT5x$VDUjeKWHv6uM4^&Q2qfY9FB0qysuo*@JGbyil7Qa%t7mN", //随机生成的，你看到了也没有用
-		DB:       0,
+		Addr:     config.RedisConfig.Addr,
+		Password: config.RedisConfig.Password,
+		DB:       config.RedisConfig.Database,
 	})
 	ctx := context.Background()
 	str, err := RDB.Ping(ctx).Result()

@@ -5,29 +5,21 @@ import (
 	"fmt"
 	"github.com/jinzhu/gorm"
 	_ "gorm.io/driver/mysql"
+	"service/pkg/config"
 )
-
-type connInfo struct {
-	addr     string
-	port     int
-	user     string
-	pw       string
-	database string
-}
 
 //DB 是MySQL的连接池
 var DB *gorm.DB
 
 func init() {
-	c := connInfo{
-		addr:     "172.20.0.2",
-		port:     3306,
-		user:     "hospital",
-		pw:       "62QppvxZjCGm7c9jdUyQ",
-		database: "hospital",
-	}
-	connString := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?charset=utf8mb4&parseTime=True&loc=Local",
-		c.user, c.pw, c.addr, c.port, c.database)
+
+	connString := fmt.Sprintf(
+		"%v:%v@tcp(%v:%v)/%v?charset=utf8mb4&parseTime=True&loc=Local",
+		config.MySQLConfig.User,
+		config.MySQLConfig.Password,
+		config.MySQLConfig.Addr,
+		config.MySQLConfig.Port,
+		config.MySQLConfig.Database)
 	var err error
 	DB, err = gorm.Open("mysql", connString)
 	if err != nil {

@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"service/Databases"
-	"service/Utils"
+	"service/pkg/password"
 )
 
 type Admin struct {
@@ -110,10 +110,10 @@ func (admin *Admin) GetAdminByUsername(username string) error {
 @CreateTime    2021/3/10 17:29
 */
 func (admin *Admin) UpdatePassword(newPassword string) error {
-	if same, _ := Utils.PasswordVerify(newPassword, admin.Password); same {
+	if same, _ := password.PasswordVerify(newPassword, admin.Password); same {
 		return errors.New("新密码与旧密码相同，pass")
 	}
-	pwSHA := Utils.PasswordWithSaltGenToSHA(newPassword)
+	pwSHA := password.PasswordWithSaltGenToSHA(newPassword)
 	result := Databases.DB.Model(&admin).Update("admin_password", pwSHA)
 	if result.Error != nil {
 		return result.Error
@@ -170,7 +170,7 @@ func (admin *Admin) AddNewAdmin() error {
 	if admin.ID != 0 {
 		return errors.New("禁止指定AdminID")
 	}
-	admin.Password = Utils.PasswordWithSaltGenToSHA(admin.Password)
+	admin.Password = password.PasswordWithSaltGenToSHA(admin.Password)
 	result := Databases.DB.Create(&admin)
 	if result.Error != nil {
 		return result.Error

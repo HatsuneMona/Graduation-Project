@@ -3,7 +3,7 @@
  * @Date  2021-03-09 08:26
  * @Description 初始化log相关内容
  **/
-package log
+package Utils
 
 import (
 	"go.uber.org/zap"

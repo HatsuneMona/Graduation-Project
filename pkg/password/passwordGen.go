@@ -1,8 +1,8 @@
-//Package Utils
+//Package password
 // @Description 密码加密器
 // @Author      HatsuneMona
 // @CreateTime  2021/3/14 09:14
-package Utils
+package password
 
 import (
 	"errors"
