@@ -157,17 +157,17 @@ func (d *Doctor) UpdateDepartment(newDepartment int) error {
 }
 
 func (d *Doctor) UpdateClass(newClass int) error {
-
+	return nil
 }
 
 func (d *Doctor) UpdateIntro(newIntro string) error {
-
+	return nil
 }
 
 func (d *Doctor) AddNewDoctor() error {
-
+	return nil
 }
 
 func (d *Doctor) Delete() error {
-
+	return nil
 }

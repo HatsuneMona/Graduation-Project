@@ -78,7 +78,7 @@ func (u *User) GetUserByPhone(phone ...string) error {
 	} else if u.Phone == "" {
 		return errors.New(fmt.Sprintf("非法手机号：%v", u.Phone))
 	}
-	if len(phone) != 11 {
+	if len(u.Phone) != 11 {
 		return errors.New(fmt.Sprintf("非法手机号：%v", u.Phone))
 	}
 	res := Databases.DB.Model(&u).Where("user_phone = ?", u.Phone).Take(&u)
