@@ -6,7 +6,7 @@
 package Utils_test
 
 import (
-	"service/pkg/password"
+	"service/pkg/auth"
 	"testing"
 	"time"
 )
@@ -17,7 +17,7 @@ func Test_PasswordUtil(t *testing.T) {
 		t.Logf("明文密码：%v\n", pw)
 		sTime := time.Now()
 		for i := 0; i < 9; i++ {
-			pwSHA := password.PasswordWithSaltGenToSHA(pw)
+			pwSHA := auth.CreatePassword(pw)
 			t.Logf("第%v次  SHA加密后的密码：%v\n", i+1, string(pwSHA))
 		}
 		eTime := time.Now()
@@ -25,18 +25,18 @@ func Test_PasswordUtil(t *testing.T) {
 	})
 
 	pw := "passwordTest@1987321654KK"
-	//pwSHA := Utils.PasswordWithSaltGenToSHA(pw)
+	//pwSHA := Utils.CreatePassword(pw)
 	t.Logf("明文密码：%v\n", pw)
 	pwSHA := make([]string, 9)
 	for i := 0; i < 9; i++ {
-		pwSHA[i] = password.PasswordWithSaltGenToSHA(pw)
+		pwSHA[i] = auth.CreatePassword(pw)
 		t.Logf("第%v次  SHA加密后的密码：%v\n", i+1, string(pwSHA[i]))
 	}
 
 	t.Run("密码验证（正确向）", func(t *testing.T) {
 		sTime := time.Now()
 		for i := 0; i < 9; i++ {
-			ok, err := password.PasswordVerify(pw, pwSHA[i])
+			ok, err := auth.PasswordVerify(pw, pwSHA[i])
 			if ok != true || err != nil {
 				t.Fatalf("第%v次  密码验证错误，错误信息：%v", i+1, err)
 			} else {
@@ -51,7 +51,7 @@ func Test_PasswordUtil(t *testing.T) {
 	t.Run("密码验证（错误向）", func(t *testing.T) {
 		sTime := time.Now()
 		for i := 0; i < 9; i++ {
-			ok, err := password.PasswordVerify(wrongPW, pwSHA[i])
+			ok, err := auth.PasswordVerify(wrongPW, pwSHA[i])
 			if ok != true || err != nil {
 				t.Logf("第%v次  密码验证错误，错误信息：%v", i+1, err)
 			} else {
@@ -67,11 +67,11 @@ func Test_PasswordUtil(t *testing.T) {
 		t.Logf("明文密码：%v\n", zhPW)
 		pwSHA := make([]string, 9)
 		for i := 0; i < 9; i++ {
-			pwSHA[i] = password.PasswordWithSaltGenToSHA(zhPW)
+			pwSHA[i] = auth.CreatePassword(zhPW)
 			t.Logf("第%v次  SHA加密后的密码：%v\n", i+1, pwSHA[i])
 		}
 		for i := 0; i < 9; i++ {
-			ok, err := password.PasswordVerify(zhPW, pwSHA[i])
+			ok, err := auth.PasswordVerify(zhPW, pwSHA[i])
 			if ok != true || err != nil {
 				t.Errorf("第%v次  密码验证错误，错误信息：%v", i+1, err)
 			} else {

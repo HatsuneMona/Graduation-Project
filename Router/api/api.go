@@ -16,5 +16,9 @@ func Init(e *gin.Engine) {
 		{
 			userApi.GET("/:phone", Controllers.GetUserInfoByPhone)
 		}
+		adminApi := apiRouter.Group("/Admin")
+		{
+			adminApi.GET("/login")
+		}
 	}
 }

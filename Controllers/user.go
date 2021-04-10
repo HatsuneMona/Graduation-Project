@@ -19,8 +19,8 @@ func GetUserInfoByPhone(c *gin.Context) {
 			"code":    -400,
 			"massage": "未找到该用户",
 			"err":     fmt.Sprint(err),
-			return
 		})
+		return
 	}
 	c.JSON(200, msg{
 		Code:    0,

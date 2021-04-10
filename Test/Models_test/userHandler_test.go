@@ -40,6 +40,56 @@ func Test_GetHandler(t *testing.T) {
 
 func Test_UpdateHandler(t *testing.T) {
 
-	//TODO 暂未编写相关测试。
+	t.Run("测试Add/Delete新用户", func(t *testing.T) {
+		tUser := Models.User{
+			ID:                0,
+			Phone:             "13366669999",
+			Nickname:          "testUpdate",
+			Password:          "testUpdateHandler",
+			BindPatientIDMeta: "",
+			BindPatientID:     nil,
+		}
+		err := tUser.AddNewUser()
+		if err != nil {
+			t.Fatal(err)
+		}
+		t.Run("删除用户", func(t *testing.T) {
+			err := tUser.Delete()
+			if err != nil {
+				t.Fatal(err)
+			}
+		})
+	})
 
+	tUser := Models.User{ID: 19999}
+	_ = tUser.GetUserByID()
+
+	t.Run("测试添加关联病人", func(t *testing.T) {
+		t.Run("重复添加", func(t *testing.T) {
+			err := tUser.AddPatient(123456)
+			if err != nil {
+				t.Logf(err.Error())
+			} else {
+				t.Fatalf("关联病人成功，%v", tUser)
+			}
+		})
+		t.Run("正常添加", func(t *testing.T) {
+			err := tUser.AddPatient(321654)
+			if err != nil {
+				t.Fatal(err)
+			} else {
+				t.Logf("关联病人成功，%v", tUser)
+				_ = tUser.DeletePatient(321654)
+			}
+		})
+	})
+
+	t.Run("测试删除关联病人", func(t *testing.T) {
+		err := tUser.DeletePatient(123456)
+		if err != nil {
+			t.Fatal(err)
+		}
+		t.Logf("删除病人后信息如下：%v", tUser)
+		_ = tUser.AddPatient(321654)
+	})
 }

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"service/Databases"
-	"service/pkg/password"
+	"service/pkg/auth"
 )
 
 type Doctor struct {
@@ -12,7 +12,7 @@ type Doctor struct {
 	Name       string `json:"doctor_name" gorm:"column:doctor_name;type:varchar(8);not null;comment:'医生名字'"`                                                                                       // 医生名字
 	Password   string `json:"doctor_password" gorm:"column:doctor_password;type:char(32);not null;comment:'医生登录密码'"`                                                                               // 医生登录密码
 	Department int    `json:"doctor_department" gorm:"column:doctor_department;type:int(11);not null;index:hospital_doctor_hospital_department_department_id_fk;default:'0';comment:'医生所在科室（部门）'"` // 医生所在科室（部门）
-	Class      int    `json:"doctor_class" gorm:"column:doctor_class;type:int(11);not null;default:'0';comment:'医生职位'"`                                                                            // 医生职位
+	Class      string `json:"doctor_class" gorm:"column:doctor_class;type:varchar(16);not null;default:'';comment:'医生职位'"`                                                                         // 医生职位
 	Intro      string `json:"doctor_intro" gorm:"column:doctor_intro;type:text;not null;comment:'医生简介'"`                                                                                           // 医生简介
 	DoctorHandlers
 }
@@ -100,10 +100,10 @@ func (d *Doctor) GetDoctorByName(name ...string) error {
 //				修改成功后，密文密码会更新到调用结构体Doctor中。
 //				若修改失败，通过`error`返回错误信息。
 func (d *Doctor) UpdatePassword(newPassword string) error {
-	if same, _ := password.PasswordVerify(newPassword, d.Password); same {
+	if same, _ := auth.PasswordVerify(newPassword, d.Password); same {
 		return errors.New("新旧密码相同，pass")
 	}
-	pwSHA := password.PasswordWithSaltGenToSHA(newPassword)
+	pwSHA := auth.CreatePassword(newPassword)
 	result := Databases.DB.Model(&d).Update("user_password", pwSHA)
 	if result.Error != nil {
 		return result.Error
@@ -142,7 +142,7 @@ func (d *Doctor) UpdateName(newName string) error {
 //				`newDepartment int` 新的科室的科室ID
 //
 //@Return
-//				修改陈宫后，新的科室ID将更新到调用者的结构体中
+//				修改成功后，新的科室ID将更新到调用者的结构体中
 //				若修改失败，则通过`error`返回错误信息。
 func (d *Doctor) UpdateDepartment(newDepartment int) error {
 	if newDepartment == d.Department {
@@ -156,15 +156,68 @@ func (d *Doctor) UpdateDepartment(newDepartment int) error {
 	return nil
 }
 
-func (d *Doctor) UpdateClass(newClass int) error {
+//UpdateClass 更新医生所在的职位
+//
+//@Description	更新医生的职位
+//
+//@Param
+//				`newClass int` 新的职位等级
+//
+//@Return
+//				修改成功后，新的职位将更新到调用者的结构体中
+//				若修改失败，则通过`error`返回错误信息。
+func (d *Doctor) UpdateClass(newClass string) error {
+	if newClass == d.Class {
+		return errors.New("新旧值相同")
+	}
+	result := Databases.DB.Model(&d).Update("doctor_class", newClass)
+	if result != nil {
+		return result.Error
+	}
+	d.Class = newClass
 	return nil
 }
 
+//UpdateIntro 更新医生的个人介绍
+//
+//@Description	更新医生的个人简介
+//
+//@Param
+//				`newIntro string` 新的个人简介
+//
+//@Return
+//				修改成功后，新的个人简介将更新到调用者的结构体中
+//				若修改失败，则通过`error`返回错误信息。
 func (d *Doctor) UpdateIntro(newIntro string) error {
+	if newIntro == d.Intro {
+		return errors.New("新旧值相同")
+	}
+	result := Databases.DB.Model(&d).Update("doctor_intro", newIntro)
+	if result != nil {
+		return result.Error
+	}
+	d.Intro = newIntro
 	return nil
 }
 
+//AddNewDoctor
+//
+//@Description	添加一个新的医生
+//
+//@Param
+//				医生信息需放在调用者结构体中
+//
+//@Return
+//
 func (d *Doctor) AddNewDoctor() error {
+	if d.ID != 0 {
+		return errors.New("禁止指定DoctorID")
+	}
+	d.Password = auth.CreatePassword(d.Password)
+	result := Databases.DB.Create(&d)
+	if result.Error != nil {
+		return result.Error
+	}
 	return nil
 }
 

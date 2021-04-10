@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"service/Databases"
-	"service/pkg/password"
+	"service/pkg/auth"
 )
 
 type Admin struct {
@@ -38,7 +38,7 @@ type AdminHandlers struct {
 
 type adminReader interface {
 	GetAdminByID(id int) error
-	GetAdminByUsername(username string) error
+	GetAdminByUsername(username ...string) error
 }
 
 type adminSetter interface {
@@ -83,12 +83,11 @@ func (admin *Admin) GetAdminByID(id int) error {
 
  * @createTime		2021/3/10 17:31
 */
-func (admin *Admin) GetAdminByUsername(username string) error {
+func (admin *Admin) GetAdminByUsername(username ...string) error {
+	if len(username) > 1 {
+		admin.Username = username[0]
+	}
 	res := Databases.DB.Where("admin_username = ?", username).Take(&admin)
-	// if res.Value != 1 {
-	//	log.Logger.Info(fmt.Sprintf("查询Admin错误，查询结果数量=%v", res.Value))
-	//	return admin, errors.New(fmt.Sprintf("查询Admin错误，查询结果数量=%v", res.Value))
-	//}
 	if res.Error != nil {
 		//log.Logger.Info(fmt.Sprintf("查询Admin错误，查询错误=%v", res.Error))
 		return errors.New(fmt.Sprintf("查询Admin错误，查询错误=%v", res.Error))
@@ -110,10 +109,10 @@ func (admin *Admin) GetAdminByUsername(username string) error {
 @CreateTime    2021/3/10 17:29
 */
 func (admin *Admin) UpdatePassword(newPassword string) error {
-	if same, _ := password.PasswordVerify(newPassword, admin.Password); same {
+	if same, _ := auth.PasswordVerify(newPassword, admin.Password); same {
 		return errors.New("新密码与旧密码相同，pass")
 	}
-	pwSHA := password.PasswordWithSaltGenToSHA(newPassword)
+	pwSHA := auth.CreatePassword(newPassword)
 	result := Databases.DB.Model(&admin).Update("admin_password", pwSHA)
 	if result.Error != nil {
 		return result.Error
@@ -170,7 +169,7 @@ func (admin *Admin) AddNewAdmin() error {
 	if admin.ID != 0 {
 		return errors.New("禁止指定AdminID")
 	}
-	admin.Password = password.PasswordWithSaltGenToSHA(admin.Password)
+	admin.Password = auth.CreatePassword(admin.Password)
 	result := Databases.DB.Create(&admin)
 	if result.Error != nil {
 		return result.Error
